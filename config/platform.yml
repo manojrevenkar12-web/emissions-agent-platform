@@ -1,0 +1,112 @@
+# The platform's settings. Only src/eap/platform/, src/eap/service/ and src/eap/agents/ read this file.
+
+# Emission factors the calculation uses. Illustrative values in the range of published defaults
+# (GLEC / ISO 14083 style), not an official table: a customer would load the licensed tables here.
+factors:
+  diesel_kg_per_l: 3.24          # well-to-wheel
+  grid_kg_per_kwh: 0.40
+  l_per_gal: 3.785
+  default_intensity_g_tkm:       # used when no primary data exists
+    road_ftl: 78
+    road_ltl: 135
+    road_van: 560
+    rail: 21
+    sea: 14
+    air: 1020
+    inland_waterway: 33
+  distance_adjustment:           # planned distance = great-circle x factor (+ fixed km for air)
+    road_ftl: 1.20
+    road_ltl: 1.22
+    road_van: 1.24
+    rail: 1.25
+    sea: 1.30
+    air: 1.05
+    inland_waterway: 1.28
+  air_extra_km: 95
+
+checks:
+  distance_ratio: { road_ftl: [0.95, 1.7], road_ltl: [0.95, 1.75], road_van: [0.95, 1.8], rail: [0.95, 1.8], sea: [0.95, 1.9], air: [0.9, 1.4], inland_waterway: [0.95, 1.9] }
+  weight_t: { road_ftl: [0.3, 27], road_ltl: [0.02, 14], road_van: [0.002, 1.6], rail: [1, 70], sea: [0.1, 32], air: [0.005, 8], inland_waterway: [5, 1600] }
+  median_weight_t: { road_ftl: [6.5, 26] }   # a full truckload is a heavy load: catches kg read as lb
+  rows_out_of_range_max: 0.04    # more rows outside a mode's range than this share fails the mapping ...
+  rows_out_of_range_min: 3       # ... once more than this many rows are outside
+  median_out_of_range: true      # the median row outside the range fails the mapping too
+  air_min_km: 250
+  intensity_ratio: [0.45, 2.2]   # primary fuel data: implied intensity / default must fall inside
+  confidence_min: 0.80           # a decision below this goes to a person even when checks pass
+  injection_patterns:            # untrusted text that reads like an instruction to the agent
+    - "(?i)ignore (all |any |the )?(previous|prior|above) (instructions|rules)"
+    - "(?i)\\b(set|mark|treat|record|report|change|update)\\b.{0,40}\\b(all|every|our)\\b.{0,40}\\b(shipments?|trucks?|vehicles?|fleet|emissions?|values?)\\b"
+    - "(?i)\\b(system|assistant|developer)\\s*:"
+    - "(?i)as an ai|you are now|new instructions"
+    - "(?i)\\bbitte\\b.{0,60}\\b(alle|sämtliche)\\b.{0,60}\\b(als|auf)\\b"
+
+profile:                         # what the mapping agent sees of a file
+  sample_rows: 12
+  top_values: 8
+  token_budget: 2400             # the profile is trimmed to fit
+  chars_per_token: 4
+
+routing:                         # which model reads first, and which one gets a second look
+  first: fast
+  escalate: balanced
+  qa: fast
+  reply_parse: fast
+  draft: fast
+
+memory:
+  enabled: true                  # reuse a person-approved mapping when a carrier's header fingerprint matches
+  median_ratio: [0.6, 1.65]      # ... unless the medians of the numbers it reads moved this much (units changed)
+  confirm_unstated_units: true   # a person confirms a unit the header does not state before it is remembered
+
+clarification:
+  enabled: true
+  min_shipments: 25              # ask a carrier for fuel data when it moved at least this many road shipments in a month
+  fields: [shipment_id, fuel, unit]
+
+approvals:                       # tools that change data or leave the company need a person
+  required_for: [send_carrier_email, override_mapping]
+  batch_minutes_per_email: 0.7
+
+analyst_minutes:                 # what the platform asks of a person, used to report time spent
+  review_base: 5.0
+  review_per_decision: 2.0
+  confirm_unit: 1.5              # a person confirms one unit the header does not state
+  manual_mapping: 30.0           # a file that still fails after two reviews is mapped by hand with the carrier
+  row_hold: 0.4
+  reply_review: 4.0
+  answer_fallback: 3.0
+
+monitor:                         # Bernoulli CUSUM on first reads that fail checks
+  baseline_obs: 80               # first reads used to learn the normal failure rate
+  delta: 0.22                    # the rise in failure rate worth an alarm
+  h: 2.5                         # alarm threshold on the log-likelihood ratio
+  pin_days: 10                   # after an alarm the router sends first reads to the escalation model
+
+budgets:
+  max_steps_per_file: 6
+  max_tokens_per_file: 20000
+
+# Prices per million tokens in euros. Set like current list prices of small, mid and large hosted models.
+prices_eur_per_mtok:
+  fast: { in: 0.92, out: 4.60 }
+  balanced: { in: 2.76, out: 13.80 }
+  frontier: { in: 4.60, out: 23.00 }
+  balanced_v2: { in: 1.84, out: 9.20 }
+  prompt_v3: { in: 2.76, out: 13.80 }
+  local: { in: 0.0, out: 0.0 }
+
+# Hosted model ids per tier for the service (EAP_MODEL_FAST etc. override them).
+claude_models:
+  fast: claude-haiku-5-5
+  balanced: claude-sonnet-5-5
+  frontier: claude-opus-5-5
+
+tokens:                          # output sizes per call kind, input is measured from the prompt
+  mapping_out: 420
+  draft_in_extra: 600
+  draft_out: 380
+  reply_in_extra: 500
+  reply_out: 260
+  qa_in_extra: 900
+  qa_out: 220

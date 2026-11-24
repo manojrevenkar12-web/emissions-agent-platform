@@ -1,0 +1,53 @@
+[project]
+name = "emissions-agent-platform"
+version = "1.0.0"
+description = "An AI agent platform for logistics emissions data: agents propose, code checks, people approve."
+requires-python = ">=3.12"
+authors = [{ name = "Manoj Kumar Prakash", email = "manojrevenkar12@gmail.com" }]
+license = { text = "MIT" }
+dependencies = [
+  "numpy>=1.26",
+  "pyyaml>=6",
+  "pydantic>=2.6",
+  "fastapi>=0.110",
+  "httpx>=0.27",
+  "uvicorn>=0.29",
+  "sqlalchemy>=2.0",
+  "mcp>=1.25,<2",
+  "opentelemetry-api>=1.25",
+  "opentelemetry-sdk>=1.25",
+]
+
+[project.optional-dependencies]
+claude = ["claude-agent-sdk>=0.2"]
+hosted = ["anthropic>=0.40"]
+otlp = ["opentelemetry-exporter-otlp-proto-http>=1.25"]
+postgres = ["psycopg[binary]>=3.1"]
+dev = ["pytest>=8", "pytest-asyncio>=0.23", "ruff>=0.6", "mypy>=1.10", "types-PyYAML", "playwright>=1.45"]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+
+[tool.ruff]
+line-length = 200
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "W"]
+ignore = ["E501"]  # the formatter sets line length; long f-strings stay on one line
+
+[tool.ruff.lint.flake8-bugbear]
+extend-immutable-calls = ["fastapi.Depends", "fastapi.Header"]
+
+[tool.mypy]
+python_version = "3.12"
+ignore_missing_imports = true
+warn_unused_ignores = true

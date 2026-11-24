@@ -1,0 +1,53 @@
+@import "@fontsource-variable/archivo/wdth.css";
+@import "./tokens.css";
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+html {
+  background: var(--fog);
+  color: var(--ink);
+  font-family: var(--font);
+  font-variation-settings: "wdth" var(--wdth-body);
+  font-size: 100%;
+  line-height: var(--leading);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+body {
+  margin: 0;
+}
+h1,
+h2,
+h3 {
+  font-variation-settings: "wdth" var(--wdth-condensed);
+  line-height: var(--leading-tight);
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+p {
+  margin: 0;
+  max-width: var(--measure);
+}
+a {
+  color: var(--signal);
+  text-underline-offset: 0.18em;
+}
+:focus-visible {
+  outline: 2px solid var(--signal);
+  outline-offset: 2px;
+}
+table {
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    transition-duration: 1ms !important;
+  }
+}

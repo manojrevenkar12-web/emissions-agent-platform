@@ -1,0 +1,65 @@
+# The designs compared on the same luck. `kind` picks the code path in src/eap/sim/designs.py; the
+# `without` lists the platform safeguards a design turns off, one at a time (ablations).
+
+designs:
+  status_quo:
+    label: People map files and answer questions; default factors fill gaps
+    kind: manual
+  model_alone:
+    label: One agent with all tools, the whole file in context, no checks
+    kind: model_alone
+    model: balanced
+  platform:
+    label: The platform (agents propose, code checks, people approve)
+    kind: platform
+  no_checks:
+    label: Platform without the mapping checks
+    kind: platform
+    without: [checks]
+  no_memory:
+    label: Platform without the carrier mapping memory
+    kind: platform
+    without: [memory]
+  no_router:
+    label: Platform with one mid-size model for every read
+    kind: platform
+    without: [router]
+  no_approvals:
+    label: Platform that sends carrier emails without a person
+    kind: platform
+    without: [approvals]
+  no_tenant_scope:
+    label: Platform that takes the tenant from the model's tool call
+    kind: platform
+    without: [tenant_scope]
+  no_answer_check:
+    label: Platform that shows answers without checking their numbers
+    kind: platform
+    without: [answer_check]
+  no_reply_checks:
+    label: Platform that trusts parsed carrier replies
+    kind: platform
+    without: [reply_checks]
+  no_monitor:
+    label: Platform without the quality monitor
+    kind: platform
+    without: [monitor]
+  no_clarification:
+    label: Platform that never asks carriers for fuel data
+    kind: platform
+    without: [clarification]
+
+ablations: [no_checks, no_memory, no_router, no_approvals, no_tenant_scope, no_answer_check, no_reply_checks, no_monitor, no_clarification]
+
+# Candidate model versions for the escalation slot. The eval gate decides from the golden set; the study then
+# runs each one in the world to see whether the gate's verdict was right.
+model_swap:
+  balanced_v2:
+    label: Cheaper mid-size model, next version
+    replaces: balanced
+  prompt_v3:
+    label: New mapping prompt on the mid-size model
+    replaces: balanced
+  frontier:
+    label: Large model in the escalation slot
+    replaces: balanced

@@ -1,0 +1,100 @@
+name: ci
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  python:
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        python: ["3.12", "3.13"]
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: eap
+          POSTGRES_DB: eap
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0 # the held-out check reads the lock's history
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - run: pip install -e ".[dev,postgres]"
+      - name: lint
+        run: ruff check . && ruff format --check .
+      - name: types
+        run: mypy src
+      - name: tests
+        run: pytest -q
+      - name: the store runs on PostgreSQL
+        env:
+          EAP_TEST_DATABASE_URL: postgresql+psycopg://postgres:eap@localhost:5432/eap
+        run: pytest -q tests/test_store.py
+      - name: reports are generated, not edited
+        if: matrix.python == '3.13'
+        run: |
+          python -m eap.cli report
+          git diff --exit-code -- REPORT.md README.md web/public/data/report.json docs/isms/CONTROLS.md
+      - name: the committed development report passes its gates
+        run: python -m eap.cli gate dev
+      - name: the held-out run happened once
+        run: |
+          if [ -f reports/heldout.lock ]; then
+            n=$(git log --format=%H --no-renames -- reports/heldout.lock | wc -l)
+            echo "heldout.lock commits: $n"; test "$n" -eq 1
+            python -m eap.cli run heldout && exit 1 || test $? -eq 3
+          fi
+      - name: the development study reruns and still passes
+        if: matrix.python == '3.13'
+        run: |
+          python -m eap.cli run dev --workers 2
+          python -m eap.cli gate dev
+
+  console:
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build
+
+  infrastructure:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.9.8
+      - name: terraform fmt
+        run: terraform -chdir=infra/terraform fmt -check -recursive
+      - name: terraform validate
+        run: |
+          terraform -chdir=infra/terraform init -backend=false -input=false
+          terraform -chdir=infra/terraform validate
+      - name: container image builds
+        run: docker build -t emissions-agent-platform:ci .
+      - name: container answers its health check
+        run: |
+          docker run -d --name eap -p 8000:8000 emissions-agent-platform:ci
+          for i in $(seq 1 30); do curl -fsS localhost:8000/healthz && exit 0; sleep 1; done
+          docker logs eap; exit 1

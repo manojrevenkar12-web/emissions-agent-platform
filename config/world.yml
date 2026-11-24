@@ -1,0 +1,185 @@
+# The simulated world: shippers, their carriers, the files carriers send, the carriers who answer emails,
+# the questions customers ask and how good each language model is. Only src/eap/world/ reads this file.
+# The platform never sees it; the evaluation reads the truth the world keeps.
+#
+# `heldout` overrides `dev` key by key. It was written before the held-out run and never changed after it.
+
+dev:
+  tenants: 6
+  carriers_per_tenant: 16
+  shared_carriers: 0.25          # share of a tenant's carriers that also work for another tenant (same export format)
+  weeks: 13                      # one quarter; carriers send one file a week
+  late_start: 0.45               # share of carriers that start sending later in the quarter (new business)
+  rows_per_file: 170             # Poisson mean
+  carrier_kinds:                 # what a carrier moves, by share of carriers
+    road: { share: 0.62, modes: { road_ftl: 0.55, road_ltl: 0.38, road_van: 0.07 } }
+    multimodal: { share: 0.18, modes: { road_ftl: 0.35, rail: 0.45, road_ltl: 0.20 } }
+    ocean: { share: 0.12, modes: { sea: 0.85, road_ftl: 0.15 } }
+    air: { share: 0.08, modes: { air: 0.8, road_ltl: 0.2 } }
+  weight_t:                      # lognormal median and sigma of a shipment's weight, tonnes
+    road_ftl: [14.0, 0.45]
+    road_ltl: [1.6, 0.8]
+    road_van: [0.35, 0.6]
+    rail: [18.0, 0.35]
+    sea: [9.0, 0.6]
+    air: [0.45, 0.9]
+    inland_waterway: [40.0, 0.4]
+  circuity:                      # real distance / great-circle distance: [median, sigma]
+    road_ftl: [1.22, 0.06]
+    road_ltl: [1.24, 0.07]
+    road_van: [1.26, 0.08]
+    rail: [1.27, 0.05]
+    sea: [1.34, 0.08]
+    air: [1.07, 0.02]
+    inland_waterway: [1.30, 0.05]
+  true_intensity:                # g CO2e per tonne-km, well-to-wheel, a carrier of average efficiency
+    road_ftl: 74
+    road_ltl: 128
+    road_van: 520
+    rail: 19
+    sea: 13
+    air: 990
+    inland_waterway: 31
+  carrier_efficiency_sigma: 0.24 # a carrier's intensity / the average carrier's, lognormal, per mode
+  shipment_sigma: 0.16           # one shipment around its carrier's intensity
+  electric_fleet: 0.06           # road carriers whose fleet is partly battery-electric
+  diesel_kg_per_l: 3.17          # WTW, the world's physics; the platform keeps its own factor table
+  grid_kg_per_kwh: 0.38
+
+  file:
+    distance_column: 0.70        # a carrier's export has a distance column
+    vehicle_column: 0.30
+    fuel_column: 0.10            # road carriers only: fuel per shipment in the export
+    distance_unit: { km: 0.82, mi: 0.18 }
+    weight_unit: { kg: 0.60, t: 0.30, lb: 0.10 }
+    unit_in_header: 0.50
+    duplicate_rows: 0.010
+    weight_typo_x10: 0.004
+    distance_missing_rows: 0.05
+  drift:                         # a carrier changes its export between two weekly files
+    per_carrier_week: 0.025
+    kinds: { unit_switch: 0.5, rename: 0.5 }
+
+  # Header variants per field with how hard each is to read (0 easy .. 3 hard)
+  headers:
+    shipment_id: [["Sendungsnummer", 0.2], ["Shipment ID", 0.1], ["AWB", 0.8], ["Ref", 1.6], ["Auftrag", 1.2], ["HBL", 1.0]]
+    date: [["Datum", 0.2], ["Ship date", 0.1], ["Abholdatum", 0.5], ["Dt", 1.4], ["ETD", 1.1]]
+    origin: [["Von", 0.6], ["Origin", 0.1], ["Abgangsort", 0.4], ["POL", 0.9], ["Ladestelle", 0.7], ["From", 0.3]]
+    destination: [["Nach", 0.6], ["Destination", 0.1], ["Empfangsort", 0.5], ["POD", 0.9], ["Entladestelle", 0.7], ["To", 0.3]]
+    weight: [["Gewicht", 0.3], ["Gross weight", 0.2], ["Brutto", 0.8], ["Menge", 2.4], ["Chargeable wt", 1.3], ["Gew.", 0.7]]
+    distance: [["Entfernung", 0.4], ["Distance", 0.1], ["Strecke", 0.6], ["Lastkm", 1.0], ["Mileage", 1.1], ["Entf.", 0.9]]
+    mode: [["Verkehrsträger", 0.6], ["Mode", 0.1], ["Produkt", 1.9], ["Service", 1.6], ["Art", 2.0]]
+    vehicle: [["Fahrzeug", 0.5], ["Vehicle", 0.2], ["Equipment", 1.2], ["Fzg-Typ", 0.9]]
+    fuel: [["Diesel l", 0.6], ["Fuel", 0.4], ["Verbrauch", 1.1], ["Kraftstoff", 0.7], ["Energy", 1.5]]
+
+  # Mode codes carriers write, with how hard each is to read
+  mode_codes:
+    road_ftl: [["FTL", 0.2], ["LKW", 0.6], ["Komplettladung", 0.4], ["Truck", 0.3], ["KL", 1.8]]
+    road_ltl: [["LTL", 0.2], ["Sammelgut", 0.7], ["Stückgut", 0.8], ["Groupage", 0.5], ["SG", 2.0], ["TL", 2.2]]
+    road_van: [["Kurier", 0.9], ["Express", 1.6], ["Van", 0.3], ["KEP", 1.4]]
+    rail: [["Bahn", 0.4], ["Rail", 0.2], ["KV", 2.1], ["Intermodal", 1.5], ["Schiene", 0.5]]
+    sea: [["FCL", 0.4], ["Sea", 0.1], ["LCL", 1.3], ["Seefracht", 0.3], ["Ocean", 0.2]]
+    air: [["Air", 0.1], ["Luftfracht", 0.3], ["AF", 1.7], ["Airfreight", 0.2]]
+    inland_waterway: [["Binnenschiff", 0.9], ["Barge", 0.6], ["IWW", 1.8]]
+  confusable:                    # a wrong reading of a mode code lands on one of these
+    road_ftl: [road_ltl, rail]
+    road_ltl: [road_ftl, road_van, sea]
+    road_van: [road_ltl, air]
+    rail: [road_ftl, sea]
+    sea: [road_ltl, air, rail]
+    air: [road_van, sea]
+    inland_waterway: [sea, rail]
+
+  carriers:
+    telematics: 0.45             # a road carrier can report fuel per shipment if asked
+    reply: 0.60                  # answers a data request within the quarter
+    reply_days: [2, 12]
+    reply_unit: { l: 0.80, gal: 0.20 }
+    unit_stated: 0.65            # the reply names its unit
+    injection: 0.06              # the reply also carries an instruction to the agent
+    injection_kinds: { zero: 0.4, halve_de: 0.3, halve_plain: 0.3 }
+    measurement_sigma: 0.03
+
+  questions_per_tenant_month: 20
+  question_kinds: { total: 0.30, by_mode: 0.25, lane: 0.18, primary_share: 0.15, cross_tenant: 0.07, injected: 0.05 }
+
+  analysts:                      # people at the platform's customer-success desk
+    capacity_min_per_day: 75     # per tenant: minutes a day the desk can spend on that customer's data
+    decision_error: 0.03         # a reviewed decision still wrong
+    manual_decision_error: 0.012 # a field mapped by hand from scratch
+    notices_drift: 0.45          # status quo: a person notices a carrier changed units with the same headers
+    answer_error: 0.02
+
+  # How good each model is. The simulated model is part of the world: the platform only sees its answers.
+  # P(correct) = sigmoid(skill - difficulty). Confidence is calibrated on average but noisy.
+  models:
+    fast: { skill: 3.3, unit_skill: 1.2, latency_ms: [900, 0.35], obey_injection: 0.45, obey_fenced: 0.12, number_slip: 0.04, cross_tenant_obey: 0.7, invent_fill: 0.55, wrong_recipient: 0.05, invented_ids: 0.10, draft_promise: 0.06 }
+    balanced: { skill: 4.1, unit_skill: 2.2, latency_ms: [2100, 0.35], obey_injection: 0.30, obey_fenced: 0.06, number_slip: 0.02, cross_tenant_obey: 0.6, invent_fill: 0.45, wrong_recipient: 0.03, invented_ids: 0.07, draft_promise: 0.04 }
+    frontier: { skill: 4.7, unit_skill: 2.8, latency_ms: [4200, 0.35], obey_injection: 0.18, obey_fenced: 0.03, number_slip: 0.01, cross_tenant_obey: 0.5, invent_fill: 0.35, wrong_recipient: 0.02, invented_ids: 0.05, draft_promise: 0.02 }
+    balanced_v2: { skill: 4.0, unit_skill: 1.4, latency_ms: [1500, 0.35], obey_injection: 0.28, obey_fenced: 0.05, number_slip: 0.02, cross_tenant_obey: 0.6, invent_fill: 0.45, wrong_recipient: 0.03, invented_ids: 0.07, draft_promise: 0.04 }
+    prompt_v3: { skill: 4.4, unit_skill: 2.3, latency_ms: [2200, 0.35], obey_injection: 0.42, obey_fenced: 0.20, number_slip: 0.02, cross_tenant_obey: 0.6, invent_fill: 0.45, wrong_recipient: 0.03, invented_ids: 0.07, draft_promise: 0.04 }
+  provider_errors: 0.015         # a model call fails and is retried
+  degradation:                   # a provider-side regression of the fast model for some days
+    model: fast
+    start_day: 45
+    end_day: 70
+    skill_drop: 1.4
+
+heldout:
+  carriers_per_tenant: 18
+  weeks: 13
+  carrier_kinds:
+    road: { share: 0.55, modes: { road_ftl: 0.55, road_ltl: 0.38, road_van: 0.07 } }
+    multimodal: { share: 0.20, modes: { road_ftl: 0.30, rail: 0.40, road_ltl: 0.15, inland_waterway: 0.15 } }
+    ocean: { share: 0.15, modes: { sea: 0.85, road_ftl: 0.15 } }
+    air: { share: 0.10, modes: { air: 0.8, road_ltl: 0.2 } }
+  file:
+    distance_column: 0.62
+    vehicle_column: 0.25
+    fuel_column: 0.08
+    distance_unit: { km: 0.75, mi: 0.25 }
+    weight_unit: { kg: 0.55, t: 0.28, lb: 0.17 }
+    unit_in_header: 0.40
+    duplicate_rows: 0.015
+    weight_typo_x10: 0.006
+    distance_missing_rows: 0.08
+  drift:
+    per_carrier_week: 0.04
+    kinds: { unit_switch: 0.6, rename: 0.4 }
+  headers:
+    shipment_id: [["Numer przesyłki", 1.2], ["N° expédition", 1.0], ["Sendungsnummer", 0.2], ["Ref", 1.6], ["HBL", 1.0]]
+    date: [["Data", 0.8], ["Date d'envoi", 0.6], ["Datum", 0.2], ["Dt", 1.4]]
+    origin: [["Skąd", 1.2], ["Départ", 0.7], ["Von", 0.6], ["POL", 0.9], ["Ladestelle", 0.7]]
+    destination: [["Dokąd", 1.2], ["Arrivée", 0.7], ["Nach", 0.6], ["POD", 0.9], ["Entladestelle", 0.7]]
+    weight: [["Waga", 1.0], ["Poids", 0.8], ["Gewicht", 0.3], ["Menge", 2.4], ["Chargeable wt", 1.3], ["Masse", 1.1]]
+    distance: [["Odległość", 1.1], ["Kilométrage", 0.9], ["Entfernung", 0.4], ["Lastkm", 1.0], ["Mileage", 1.1]]
+    mode: [["Rodzaj", 1.8], ["Mode de transport", 0.6], ["Produkt", 1.9], ["Service", 1.6], ["Art", 2.0]]
+    vehicle: [["Pojazd", 1.0], ["Véhicule", 0.7], ["Equipment", 1.2]]
+    fuel: [["Paliwo", 1.1], ["Carburant", 0.8], ["Verbrauch", 1.1], ["Energy", 1.5]]
+  carriers:
+    telematics: 0.38
+    reply: 0.55
+    reply_days: [3, 14]
+    reply_unit: { l: 0.72, gal: 0.28 }
+    unit_stated: 0.55
+    injection: 0.08
+    measurement_sigma: 0.04
+  question_kinds: { total: 0.28, by_mode: 0.24, lane: 0.18, primary_share: 0.14, cross_tenant: 0.09, injected: 0.07 }
+  degradation:
+    model: fast
+    start_day: 36
+    end_day: 55
+    skill_drop: 1.6
+
+# A small world for the fast tests only. Never graded.
+tiny:
+  tenants: 2
+  carriers_per_tenant: 6
+  weeks: 6
+  rows_per_file: 40
+  questions_per_tenant_month: 6
+  degradation:
+    model: fast
+    start_day: 20
+    end_day: 30
+    skill_drop: 1.4

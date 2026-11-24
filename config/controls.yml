@@ -1,0 +1,60 @@
+# ISO/IEC 27001:2022 Annex A controls this platform implements, each with the evidence that shows it.
+# Evidence is a test (tests/<file>::<function>), a file in the repository, or a CI step name. A test
+# (tests/test_isms.py) fails if any piece of evidence does not exist, so the list cannot drift from the code.
+controls:
+  - id: A.5.15
+    title: Access control
+    how: Roles in config/rbac.yml decide which tool a principal may call; every call goes through one gateway.
+    evidence: [tests/test_governance.py::test_a_role_cannot_call_tools_outside_it, config/rbac.yml]
+  - id: A.5.18
+    title: Access rights
+    how: API keys map to a subject, a role and a tenant; keys are stored as SHA-256 hashes and come from Key Vault.
+    evidence: [tests/test_api.py::test_unknown_keys_are_refused, infra/terraform/keyvault.tf]
+  - id: A.8.3
+    title: Information access restriction
+    how: The tenant comes from the caller's key, never from a tool argument; cross-tenant calls are denied and logged.
+    evidence: [tests/test_governance.py::test_the_tenant_comes_from_the_caller_not_the_arguments, tests/test_api.py::test_a_customer_sees_its_own_emissions_and_not_another_tenants]
+  - id: A.5.3
+    title: Segregation of duties
+    how: An approval must come from a person other than the requester, with a role that may approve.
+    evidence: [tests/test_governance.py::test_the_requester_cannot_approve_their_own_request, tests/test_governance.py::test_external_email_waits_for_a_person_who_is_not_the_requester]
+  - id: A.8.15
+    title: Logging
+    how: Every tool call, denial, queue entry and decision is appended to a hash-chained audit log persisted to PostgreSQL.
+    evidence: [tests/test_governance.py::test_the_audit_chain_detects_a_changed_entry, tests/test_api.py::test_the_audit_is_for_admins_and_verifies]
+  - id: A.8.16
+    title: Monitoring activities
+    how: OpenTelemetry spans and OpenMetrics go to Datadog; monitors page on denials, cost, latency and the quality CUSUM.
+    evidence: [deploy/datadog/monitors.yml, infra/terraform/datadog.tf, tests/test_monitor.py::test_no_alarm_at_the_baseline_rate_and_an_alarm_after_a_rise]
+  - id: A.8.25
+    title: Secure development life cycle
+    how: Every change runs lint, types, tests, the eval gate and the study's gates in CI before it can merge.
+    evidence: [.github/workflows/ci.yml, tests/test_lab.py::test_gates_read_the_designs]
+  - id: A.8.28
+    title: Secure coding
+    how: Untrusted text (files, replies, questions) is fenced; instructions in it are detected; it can never reach a write tool.
+    evidence: [tests/test_checks.py::test_the_fence_cannot_be_closed_from_inside, tests/test_checks.py::test_instructions_in_replies_are_noticed]
+  - id: A.8.29
+    title: Security testing in development and acceptance
+    how: The study runs a red-team set (injected replies, cross-tenant questions, write attempts) on every change.
+    evidence: [tests/test_platform.py::test_cross_tenant_questions_are_refused_and_writes_blocked, src/eap/evals/suite.py]
+  - id: A.8.32
+    title: Change management
+    how: A model or prompt change takes a router slot only after the eval gate passes; the held-out run happens once.
+    evidence: [src/eap/evals/suite.py, tests/test_lab.py::test_the_held_out_run_refuses_to_run_twice, docs/adr/0005-eval-gate.md]
+  - id: A.8.9
+    title: Configuration management
+    how: Infrastructure is Terraform; settings live in config/ by owner; reports are generated and CI fails on a diff.
+    evidence: [infra/terraform/main.tf, config/platform.yml]
+  - id: A.8.24
+    title: Use of cryptography
+    how: TLS to every endpoint, PostgreSQL with enforced TLS, Key Vault for secrets, storage encrypted at rest.
+    evidence: [infra/terraform/database.tf, infra/terraform/keyvault.tf]
+  - id: A.5.23
+    title: Information security for use of cloud services
+    how: Azure resources in one resource group per environment, private networking for the database, managed identities, no keys in code.
+    evidence: [infra/terraform/main.tf, infra/terraform/network.tf]
+  - id: A.8.12
+    title: Data leakage prevention
+    how: Carrier emails go to the registry's address only, drop unknown shipment ids and wait for a person; the mapping memory keys on header names, never row values.
+    evidence: [src/eap/platform/orchestrator.py, src/eap/platform/profile.py]

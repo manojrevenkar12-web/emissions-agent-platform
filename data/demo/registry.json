@@ -1,0 +1,182 @@
+[
+ {
+  "carrier_id": "C-05000",
+  "name": "Road carrier 000",
+  "kind": "road",
+  "contact": "data-c-05000@carrier.example"
+ },
+ {
+  "carrier_id": "C-05001",
+  "name": "Ocean carrier 001",
+  "kind": "ocean",
+  "contact": "data-c-05001@carrier.example"
+ },
+ {
+  "carrier_id": "C-05002",
+  "name": "Ocean carrier 002",
+  "kind": "ocean",
+  "contact": "data-c-05002@carrier.example"
+ },
+ {
+  "carrier_id": "C-05003",
+  "name": "Air carrier 003",
+  "kind": "air",
+  "contact": "data-c-05003@carrier.example"
+ },
+ {
+  "carrier_id": "C-05004",
+  "name": "Road carrier 004",
+  "kind": "road",
+  "contact": "data-c-05004@carrier.example"
+ },
+ {
+  "carrier_id": "C-05005",
+  "name": "Road carrier 005",
+  "kind": "road",
+  "contact": "data-c-05005@carrier.example"
+ },
+ {
+  "carrier_id": "C-05008",
+  "name": "Ocean carrier 008",
+  "kind": "ocean",
+  "contact": "data-c-05008@carrier.example"
+ },
+ {
+  "carrier_id": "C-05009",
+  "name": "Multimodal carrier 009",
+  "kind": "multimodal",
+  "contact": "data-c-05009@carrier.example"
+ },
+ {
+  "carrier_id": "C-05010",
+  "name": "Multimodal carrier 010",
+  "kind": "multimodal",
+  "contact": "data-c-05010@carrier.example"
+ },
+ {
+  "carrier_id": "C-05011",
+  "name": "Road carrier 011",
+  "kind": "road",
+  "contact": "data-c-05011@carrier.example"
+ },
+ {
+  "carrier_id": "C-05012",
+  "name": "Road carrier 012",
+  "kind": "road",
+  "contact": "data-c-05012@carrier.example"
+ },
+ {
+  "carrier_id": "C-05013",
+  "name": "Road carrier 013",
+  "kind": "road",
+  "contact": "data-c-05013@carrier.example"
+ },
+ {
+  "carrier_id": "C-05014",
+  "name": "Road carrier 014",
+  "kind": "road",
+  "contact": "data-c-05014@carrier.example"
+ },
+ {
+  "carrier_id": "C-05015",
+  "name": "Road carrier 015",
+  "kind": "road",
+  "contact": "data-c-05015@carrier.example"
+ },
+ {
+  "carrier_id": "C-05016",
+  "name": "Multimodal carrier 016",
+  "kind": "multimodal",
+  "contact": "data-c-05016@carrier.example"
+ },
+ {
+  "carrier_id": "C-05017",
+  "name": "Road carrier 017",
+  "kind": "road",
+  "contact": "data-c-05017@carrier.example"
+ },
+ {
+  "carrier_id": "C-05018",
+  "name": "Multimodal carrier 018",
+  "kind": "multimodal",
+  "contact": "data-c-05018@carrier.example"
+ },
+ {
+  "carrier_id": "C-05019",
+  "name": "Multimodal carrier 019",
+  "kind": "multimodal",
+  "contact": "data-c-05019@carrier.example"
+ },
+ {
+  "carrier_id": "C-05020",
+  "name": "Road carrier 020",
+  "kind": "road",
+  "contact": "data-c-05020@carrier.example"
+ },
+ {
+  "carrier_id": "C-05021",
+  "name": "Air carrier 021",
+  "kind": "air",
+  "contact": "data-c-05021@carrier.example"
+ },
+ {
+  "carrier_id": "C-05022",
+  "name": "Multimodal carrier 022",
+  "kind": "multimodal",
+  "contact": "data-c-05022@carrier.example"
+ },
+ {
+  "carrier_id": "C-05023",
+  "name": "Air carrier 023",
+  "kind": "air",
+  "contact": "data-c-05023@carrier.example"
+ },
+ {
+  "carrier_id": "C-05024",
+  "name": "Road carrier 024",
+  "kind": "road",
+  "contact": "data-c-05024@carrier.example"
+ },
+ {
+  "carrier_id": "C-05025",
+  "name": "Ocean carrier 025",
+  "kind": "ocean",
+  "contact": "data-c-05025@carrier.example"
+ },
+ {
+  "carrier_id": "C-05026",
+  "name": "Multimodal carrier 026",
+  "kind": "multimodal",
+  "contact": "data-c-05026@carrier.example"
+ },
+ {
+  "carrier_id": "C-05027",
+  "name": "Multimodal carrier 027",
+  "kind": "multimodal",
+  "contact": "data-c-05027@carrier.example"
+ },
+ {
+  "carrier_id": "C-05028",
+  "name": "Road carrier 028",
+  "kind": "road",
+  "contact": "data-c-05028@carrier.example"
+ },
+ {
+  "carrier_id": "C-05029",
+  "name": "Road carrier 029",
+  "kind": "road",
+  "contact": "data-c-05029@carrier.example"
+ },
+ {
+  "carrier_id": "C-05030",
+  "name": "Multimodal carrier 030",
+  "kind": "multimodal",
+  "contact": "data-c-05030@carrier.example"
+ },
+ {
+  "carrier_id": "C-05031",
+  "name": "Multimodal carrier 031",
+  "kind": "multimodal",
+  "contact": "data-c-05031@carrier.example"
+ }
+]

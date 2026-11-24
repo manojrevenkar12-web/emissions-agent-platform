@@ -1,0 +1,56 @@
+.figure {
+  margin: 0;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-panel);
+  padding: var(--s-4);
+  display: grid;
+  gap: var(--s-2);
+}
+.svg {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.window {
+  fill: var(--brick-wash);
+}
+.label {
+  fill: var(--brick);
+  font-size: 12px;
+}
+.axis {
+  stroke: var(--rule-strong);
+}
+.threshold {
+  stroke: var(--ink-3);
+  stroke-dasharray: 4 4;
+}
+.tick {
+  fill: var(--ink-3);
+  font-size: 11px;
+}
+.line {
+  fill: none;
+  stroke: var(--series-model);
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+.alarm {
+  stroke: var(--ink);
+  stroke-width: 1.5;
+}
+.alarmText {
+  fill: var(--ink);
+  font-size: 12px;
+  font-weight: 600;
+}
+.dot {
+  fill: var(--series-model);
+  stroke: var(--paper);
+  stroke-width: 2;
+}
+.caption {
+  font-size: var(--step--1);
+  color: var(--ink-2);
+}

@@ -1,0 +1,19 @@
+# Who may call which tool. Agents act as service principals with the narrowest role that does their job.
+# The tenant is part of the principal (from the API key or the agent's job), never a tool argument.
+roles:
+  customer_viewer: [query_emissions]
+  qa_agent: [query_emissions]
+  mapping_agent: [get_file_profile, get_carrier_mapping]
+  clarification_agent: [list_missing_fuel, send_carrier_email, set_primary_data]
+  analyst: [query_emissions, approve, override_mapping, set_primary_data, list_approvals, get_file_profile]
+  platform_admin: [read_audit, list_approvals]
+
+# API keys are stored as SHA-256 hashes; the service reads the keys themselves from Key Vault or the
+# environment. These demo keys exist only for local runs and tests: demo-viewer-t1, demo-viewer-t2,
+# demo-analyst-anna, demo-analyst-ben, demo-admin.
+demo_keys:
+  - { key_sha256: "87d7e6cba7d101b9c727531bc8186f7491f8886a01e9cd4bf3c0cd5ec7255743", subject: "viewer@nordhafen", role: customer_viewer, tenant: T1 }
+  - { key_sha256: "410c4f0f1668618c955946da901a5ec467f4ea5d261515d3619daa71face522d", subject: "viewer@kranich", role: customer_viewer, tenant: T2 }
+  - { key_sha256: "a780054f69f8b421c2f1a72b029e58445aad8a096f4552535649c93e629504d1", subject: "anna@desk", role: analyst, tenant: "*" }
+  - { key_sha256: "018d5fb9f9bc8c81ba764fbd214740817be9b669b614ddc48f46bc73b56ab782", subject: "ben@desk", role: analyst, tenant: "*" }
+  - { key_sha256: "cce7a2cf1ae045989cfc914fb95a41526f167a838b3c7d33745143614abace7c", subject: "ops@platform", role: platform_admin, tenant: "*" }

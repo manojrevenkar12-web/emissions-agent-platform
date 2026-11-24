@@ -1,0 +1,82 @@
+/* Design tokens. Components use these names, never raw values. */
+:root {
+  color-scheme: light;
+  /* surfaces */
+  --fog: #f4f6f5;
+  --paper: #ffffff;
+  --rule: #d5dcda;
+  --rule-strong: #a9b5b2;
+  /* ink */
+  --ink: #13212b;
+  --ink-2: #4a5a66;
+  --ink-3: #6c7b85;
+  /* roles */
+  --signal: #2a5bd7; /* links, the platform */
+  --signal-wash: #e7edfb;
+  --canal: #1a7f5f; /* passes */
+  --canal-wash: #e3f1ec;
+  --flag: #a36f00; /* a person stepped in (text) */
+  --flag-wash: #fbf1d9;
+  --brick: #9c3b2e; /* fails */
+  --brick-wash: #f7e7e4;
+  /* chart series (validated: scripts/validate_palette.js, light on --fog) */
+  --series-model: #2a5bd7;
+  --series-code: #1a8f6b;
+  --series-person: #d69200;
+
+  /* type: one family, width carries the voice */
+  --font: "Archivo Variable", "Archivo", system-ui, sans-serif;
+  --wdth-condensed: 68;
+  --wdth-body: 100;
+  --step--1: 0.8rem;
+  --step-0: 1rem;
+  --step-1: 1.25rem;
+  --step-2: 1.5625rem;
+  --step-3: 1.953rem;
+  --step-4: 2.441rem;
+  --step-5: 3.815rem;
+  --leading: 1.5;
+  --leading-tight: 1.08;
+
+  /* space: 4px base */
+  --s-1: 0.25rem;
+  --s-2: 0.5rem;
+  --s-3: 0.75rem;
+  --s-4: 1rem;
+  --s-5: 1.5rem;
+  --s-6: 2rem;
+  --s-7: 3rem;
+  --s-8: 4.5rem;
+  --measure: 68ch;
+  --page: 1180px;
+
+  --radius-cell: 2px;
+  --radius-panel: 6px;
+  --shadow-lift: 0 1px 0 rgba(19, 33, 43, 0.06), 0 8px 24px -12px rgba(19, 33, 43, 0.18);
+  --ease: cubic-bezier(0.2, 0.7, 0.1, 1);
+  --t-fast: 160ms;
+  --t-reveal: 520ms;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --fog: #13212b;
+  --paper: #182a36;
+  --rule: #2a3d4a;
+  --rule-strong: #3e5463;
+  --ink: #eef2f1;
+  --ink-2: #b5c1c6;
+  --ink-3: #8d9ca4;
+  --signal: #7fa2f5;
+  --signal-wash: #1e3150;
+  --canal: #4cc39b;
+  --canal-wash: #173a31;
+  --flag: #e9b545;
+  --flag-wash: #3a2f15;
+  --brick: #ec8b7b;
+  --brick-wash: #3f2420;
+  --series-model: #5b86f0;
+  --series-code: #23a07a;
+  --series-person: #b8830a;
+  --shadow-lift: 0 1px 0 rgba(0, 0, 0, 0.3), 0 8px 24px -12px rgba(0, 0, 0, 0.6);
+}

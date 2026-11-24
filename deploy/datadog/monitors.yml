@@ -1,0 +1,46 @@
+# Datadog monitors for the platform. Terraform (infra/terraform/datadog.tf) creates one monitor per entry;
+# ${env} is replaced with the environment. Metrics come from the API's /metrics endpoint (OpenMetrics,
+# scraped by the Agent sidecar) and from OTLP traces.
+monitors:
+  - name: Model cost above the hourly budget
+    type: query alert
+    query: "sum(last_1h):sum:eap.llm_cost_eur{env:${env}}.as_count() > 5"
+    critical: 5
+    warning: 3
+    priority: 3
+    notify: slack-ai-platform
+    runbook: model-cost-above-budget
+    message: The agents spent more than EUR 5 on model calls in the last hour. Check for a loop or a memory that stopped hitting.
+  - name: Denied tool calls spiking
+    type: query alert
+    query: "sum(last_15m):sum:eap.denials{env:${env}}.as_count() > 20"
+    critical: 20
+    priority: 2
+    notify: pagerduty-ai-platform
+    runbook: denied-tool-calls
+    message: More than 20 denied tool calls in 15 minutes (cross-tenant, role or unknown tool). Someone or something is probing.
+  - name: First reads failing checks (quality CUSUM alarm)
+    type: query alert
+    query: "max(last_30m):max:eap.quality_alarms{env:${env}} > 0"
+    critical: 0
+    priority: 2
+    notify: pagerduty-ai-platform
+    runbook: quality-alarm
+    message: The share of first mapping reads that fail code checks rose. The router has pinned first reads to the escalation model; check the provider's status and run the eval gate.
+  - name: Mapping read latency
+    type: query alert
+    query: "avg(last_15m):avg:eap.span_p95_ms{env:${env},span:map.read} > 15000"
+    critical: 15000
+    warning: 8000
+    priority: 3
+    notify: slack-ai-platform
+    runbook: slow-model-calls
+    message: p95 of a mapping read is above 15 s.
+  - name: Approvals waiting
+    type: query alert
+    query: "avg(last_4h):avg:eap.approvals_pending{env:${env}} > 50"
+    critical: 50
+    priority: 4
+    notify: slack-customer-success
+    runbook: approvals-waiting
+    message: More than 50 carrier emails are waiting for a person for four hours.
